@@ -74,52 +74,62 @@ function b64url(json) {
   bytes.forEach((b) => { bin += String.fromCharCode(b); });
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
-function payload() {
+function shape(s) {
   const opt = (o, id) => ({ id: id || o.id || '', t: o.t, e: o.e || '💛' });
-  const eve = state.eveningOpts.slice(0, 2).map((o, i) => opt(o, i === 0 ? 'cafe' : 'home'));
+  const eve = s.eveningOpts.slice(0, 2).map((o, i) => opt(o, i === 0 ? 'cafe' : 'home'));
   return {
-    v: 2,
-    herName: state.herName,
-    myName: state.myName,
-    question: state.question,
-    dateLabel: state.dateLabel,
-    noMode: state.noMode,
-    secret: state.secret,
-    theme: state.theme,
-    font: state.font,
-    cats: state.cats,
-    formsubmitEmail: state.formsubmitEmail,
-    evening: { title: state.eveningTitle, sub: 'Выбери — подстроюсь под тебя.', options: eve },
+    herName: s.herName,
+    myName: s.myName,
+    question: s.question,
+    dateLabel: s.dateLabel,
+    noMode: s.noMode,
+    secret: s.secret,
+    theme: s.theme,
+    font: s.font,
+    cats: s.cats,
+    formsubmitEmail: s.formsubmitEmail,
+    evening: { title: s.eveningTitle, sub: 'Выбери — подстроюсь под тебя.', options: eve },
     branches: {
       cafe: {
-        title: state.cafeTitle,
+        title: s.cafeTitle,
         sub: 'Можно несколько.',
         multi: true,
-        options: state.cafeOpts.map((o) => opt(o)),
+        options: s.cafeOpts.map((o) => opt(o)),
         own: { t: 'Твой вариант', e: '✨', placeholder: 'Что бы ты хотела?' }
       },
       home: {
-        title: state.homeTitle,
+        title: s.homeTitle,
         sub: 'Можно несколько.',
         multi: true,
         dinner: {
-          title: state.dinnerTitle,
+          title: s.dinnerTitle,
           sub: 'Можно несколько — соберу стол.',
           multi: true,
-          options: state.dinnerOpts.map((o) => opt(o)),
+          options: s.dinnerOpts.map((o) => opt(o)),
           own: { t: 'Твой вариант', e: '✨', placeholder: 'Что закажем?' }
         },
-        options: state.homeOpts.map((o) => opt(o)),
+        options: s.homeOpts.map((o) => opt(o)),
         own: { t: 'Твой вариант', e: '✨', placeholder: 'Что бы ты хотела?' }
       }
     },
     morning: {
-      title: state.morningTitle,
+      title: s.morningTitle,
       sub: 'Можно всё сразу.',
       multi: true,
-      options: state.morningOpts.map((o) => opt(o))
+      options: s.morningOpts.map((o) => opt(o)),
+      own: { t: 'Твой вариант', e: '✨', placeholder: 'Что бы ты хотела на завтрак?' }
     }
   };
+}
+/* В ссылку кладём только отличия от значений по умолчанию — иначе она раздувается до 3 КБ */
+function payload() {
+  const full = shape(state);
+  const base = shape(DEFAULT);
+  const out = { v: 2 };
+  Object.keys(full).forEach((k) => {
+    if (JSON.stringify(full[k]) !== JSON.stringify(base[k])) out[k] = full[k];
+  });
+  return out;
 }
 function baseDir() {
   return location.href.replace(/constructor\.html.*$/, '');
