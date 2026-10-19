@@ -10,7 +10,7 @@ const show = (id) => {
 /* ---------- фон: лепестки ---------- */
 (function petals() {
   const box = $('petals');
-  const glyphs = ['🌸', '🌷', '💗', '🍂', '🌸', '✿'];
+  const glyphs = (window.CONFIG && window.CONFIG.glyphs) || ['🌸', '🌷', '💗', '🍂', '🌸', '✿'];
   for (let i = 0; i < 14; i++) {
     const s = document.createElement('span');
     s.textContent = glyphs[i % glyphs.length];
@@ -258,5 +258,6 @@ function init() {
   wireNo();
   $('dateNext').addEventListener('click', () => { show('s3'); buildActs(); });
   $('actNext').addEventListener('click', finish);
+  if (C.previewSkip) first();
 }
 

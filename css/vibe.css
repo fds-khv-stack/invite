@@ -1,0 +1,29 @@
+/* Темы-вайбы и шрифтовые варианты для приглашения.
+   Значения переменных ставит js/params.js на <html>; здесь только шрифтовые режимы. */
+
+html[data-font="geo"] .q,
+html[data-font="geo"] .step { font-family: Unbounded, system-ui, sans-serif; font-weight: 700; }
+
+html[data-font="script"] .q,
+html[data-font="script"] .step {
+  font-family: Caveat, cursive; font-weight: 700; letter-spacing: 0;
+  font-size: 34px; line-height: 1.15;
+}
+html[data-font="script"] .q { font-size: 36px; }
+
+html[data-font="serif"] .q,
+html[data-font="serif"] .step {
+  font-family: Georgia, 'Times New Roman', serif; font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+/* тёмные вайбы: карточка и текст читаются на тёмном фоне */
+html[data-dark="1"] body { color: #f7f2ea; }
+html[data-dark="1"] .card { background: rgba(24, 20, 34, .72); border-color: rgba(255, 255, 255, .12); }
+html[data-dark="1"] .q, html[data-dark="1"] .step, html[data-dark="1"] .finaltext { color: #fdf9f3; }
+html[data-dark="1"] .sub, html[data-dark="1"] .signed { color: #c9c1d6; }
+html[data-dark="1"] .chip { background: rgba(255, 255, 255, .1); color: #f7f2ea; border-color: rgba(255, 255, 255, .18); }
+html[data-dark="1"] .btn.no { background: rgba(255, 255, 255, .12); color: #efe9f5; border-color: rgba(255, 255, 255, .2); }
+html[data-dark="1"] .envelope { background: rgba(255, 255, 255, .1); color: #ffd9c2; border-color: rgba(255, 200, 160, .5); }
+html[data-dark="1"] .secret { color: #ffc9b0; }
+html[data-dark="1"] .intro { color: #fff6ef; }

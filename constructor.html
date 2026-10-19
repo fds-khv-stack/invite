@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Конструктор приглашения — Свидание</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Manrope:wght@400;600;800&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/constructor.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">конструктор приглашения<span>Свидание</span></div>
+  <div class="top-actions">
+    <button class="btn primary" id="copyBtn">Скопировать ссылку</button>
+    <button class="btn" id="openBtn">Открыть</button>
+    <button class="btn ghost" id="resetBtn" title="Вернуть значения по умолчанию">Сброс</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="panel">
+
+    <div class="group">
+      <h2>Для кого</h2>
+      <div class="row">
+        <label>Её имя<input id="herName" autocomplete="off"></label>
+        <label>Твоя подпись<input id="myName" autocomplete="off"></label>
+      </div>
+      <label>Вопрос<textarea id="question" rows="2"></textarea></label>
+      <p class="hint">В вопросе можно писать <code>{name}</code> — подставится её имя.</p>
+    </div>
+
+    <div class="group">
+      <h2>Когда</h2>
+      <label>Дни — по одному в строке<textarea id="dates" rows="3"></textarea></label>
+      <label>Время — через запятую<input id="times" autocomplete="off"></label>
+    </div>
+
+    <div class="group">
+      <h2>Чем займёмся</h2>
+      <label>Занятия — по одному в строке, смайлик в начале<textarea id="acts" rows="3"></textarea></label>
+      <p class="hint">Например: <code>☕ Кофе и разговор</code></p>
+    </div>
+
+    <div class="group">
+      <h2>Секретный конверт</h2>
+      <label>Сообщение на финале<textarea id="secret" rows="3"></textarea></label>
+    </div>
+
+    <div class="group">
+      <h2>Кнопка «Нет»</h2>
+      <label>Поведение
+        <select id="noMode">
+          <option value="runaway">Убегает</option>
+          <option value="shrink">Уменьшается</option>
+          <option value="split">Размножается</option>
+          <option value="kiss">Исчезает с 😘</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="group">
+      <h2>Оформление</h2>
+      <div class="themes" id="themeCards"></div>
+      <label>Шрифт заголовков
+        <select id="font">
+          <option value="geo">Геометричный (Unbounded)</option>
+          <option value="script">Рукописный (Caveat)</option>
+          <option value="serif">Классический (serif)</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="group">
+      <h2>Ответы</h2>
+      <label>Почта для ответов<input id="email" autocomplete="off" inputmode="email"></label>
+      <p class="hint">Пока FormSubmit не активирован, ответы в почту не приходят.</p>
+    </div>
+
+  </section>
+
+  <section class="side">
+    <div class="phone">
+      <div class="phone-bar"><span>превью</span><span id="phoneSize">390×844</span></div>
+      <iframe id="preview" title="Превью приглашения"></iframe>
+    </div>
+    <label class="linkbox">Готовая ссылка
+      <textarea id="linkOut" rows="3" readonly></textarea>
+    </label>
+    <p class="hint" id="lenHint"></p>
+  </section>
+
+</main>
+
+<div class="toast" id="toast">Ссылка скопирована</div>
+
+<script src="js/params.js"></script>
+<script src="js/constructor.js"></script>
+</body>
+</html>
