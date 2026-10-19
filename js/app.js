@@ -132,7 +132,7 @@ function wireClone(cl) {
 }
 
 /* ---------- состояние ответов ---------- */
-const picked = { evening: '', eveningLabel: '', branch: [], own: '', morning: [], morningOwn: '' };
+const picked = { evening: '', eveningLabel: '', dinner: [], dinnerOwn: '', branch: [], own: '', morning: [], morningOwn: '' };
 
 /* ---------- экран 1: вопрос ---------- */
 function first() {
@@ -172,10 +172,61 @@ function stepEvening() {
         picked.eveningLabel = o.t;
         box.querySelectorAll('.chip').forEach((x) => x.classList.remove('sel'));
         b.classList.add('sel');
-        setTimeout(stepBranch, 300);
+        setTimeout(() => {
+          const hasDinner = C.branches.home && C.branches.home.dinner;
+          if (o.id === 'home' && hasDinner) stepDinner();
+          else stepBranch();
+        }, 300);
       });
       box.appendChild(b);
     });
+  }
+}
+
+/* ---------- экран 3a: еда (только «ужинаем дома») ---------- */
+function stepDinner() {
+  show('sDinner');
+  const cfg = C.branches.home.dinner;
+  $('dTitle').textContent = cfg.title;
+  $('dSub').textContent = cfg.sub || '';
+  const box = $('dChips');
+  box.innerHTML = '';
+  picked.dinner = [];
+  picked.dinnerOwn = '';
+  $('dOwnWrap').hidden = true;
+  $('dOwnInput').value = '';
+  $('dNext').disabled = true;
+
+  const refresh = () => {
+    $('dNext').disabled = !(picked.dinner.length || picked.dinnerOwn.trim());
+  };
+
+  cfg.options.forEach((o) => {
+    const b = optionButton(o);
+    b.addEventListener('click', () => {
+      const on = b.classList.toggle('sel');
+      if (on) picked.dinner.push(o.t);
+      else picked.dinner = picked.dinner.filter((t) => t !== o.t);
+      refresh();
+    });
+    box.appendChild(b);
+  });
+
+  if (cfg.own) {
+    const b = optionButton({ e: cfg.own.e, t: cfg.own.t, id: 'down' });
+    b.addEventListener('click', () => {
+      const on = b.classList.toggle('sel');
+      $('dOwnWrap').hidden = !on;
+      if (on) {
+        $('dOwnInput').placeholder = cfg.own.placeholder || 'Что закажем?';
+        $('dOwnInput').focus();
+      } else {
+        picked.dinnerOwn = '';
+        $('dOwnInput').value = '';
+      }
+      refresh();
+    });
+    box.appendChild(b);
   }
 }
 
@@ -283,12 +334,19 @@ function morningSummary() {
   if (picked.morningOwn.trim()) parts.push('«' + picked.morningOwn.trim() + '»');
   return parts.join(', ');
 }
+function dinnerSummary() {
+  const parts = picked.dinner.slice();
+  if (picked.dinnerOwn.trim()) parts.push('«' + picked.dinnerOwn.trim() + '»');
+  return parts.join(', ');
+}
 function answerLines() {
   const lines = ['💌 ' + C.herName + ' согласилась'];
   lines.push('📅 ' + C.dateLabel);
   lines.push('🍽 ' + (picked.eveningLabel || '—'));
+  const food = dinnerSummary();
+  if (food) lines.push('🥡 На ужин: ' + food);
   const after = branchSummary();
-  if (after) lines.push((picked.evening === 'home' ? '🥡 ' : '🌙 ') + after);
+  if (after) lines.push('🌙 ' + after);
   const morn = morningSummary();
   if (morn) lines.push('☀️ ' + morn);
   return lines;
@@ -298,8 +356,10 @@ function answerLines() {
 function finish() {
   show('s5');
   const lines = ['📅 ' + C.dateLabel, '🍽 ' + (picked.eveningLabel || '—')];
+  const food = dinnerSummary();
+  if (food) lines.push('🥡 На ужин: ' + food);
   const after = branchSummary();
-  if (after) lines.push((picked.evening === 'home' ? '🥡 ' : '🌙 ') + after);
+  if (after) lines.push('🌙 ' + after);
   const morn = morningSummary();
   if (morn) lines.push('☀️ ' + morn);
 
@@ -438,6 +498,11 @@ function init() {
   $('mOwnInput').addEventListener('input', () => {
     picked.morningOwn = $('mOwnInput').value;
     $('mNext').disabled = !(picked.morning.length || picked.morningOwn.trim());
+  });
+  $('dNext').addEventListener('click', stepBranch);
+  $('dOwnInput').addEventListener('input', () => {
+    picked.dinnerOwn = $('dOwnInput').value;
+    $('dNext').disabled = !(picked.dinner.length || picked.dinnerOwn.trim());
   });
   if (C.cats === false) { const box = $('cats'); if (box) box.remove(); }
   const pic = $('saturdayPic');

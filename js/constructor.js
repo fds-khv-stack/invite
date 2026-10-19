@@ -14,6 +14,7 @@ const DEFAULT = {
     { e: '🍽', t: 'Ужинаем в кафе' },
     { e: '🏠', t: 'Ужинаем дома' }
   ],
+  // ветка «в кафе»: чем займёмся после
   cafeTitle: 'Что выберешь после ужина?',
   cafeOpts: [
     { e: '🍷', t: 'Вино' },
@@ -23,21 +24,33 @@ const DEFAULT = {
     { e: '🎬', t: 'Смотрим киношку' },
     { e: '📺', t: 'Сериал' }
   ],
-  homeTitle: 'Какие пожелания на ужин?',
-  homeOpts: [
+  // ветка «дома»: сначала еда, потом «после ужина»
+  dinnerTitle: 'Какие пожелания на ужин?',
+  dinnerOpts: [
     { e: '🍕', t: 'Пицца' },
     { e: '🍣', t: 'Роллы' },
     { e: '🥗', t: 'Салаты' },
     { e: '🧀', t: 'Лёгкая закуска' }
+  ],
+  homeTitle: 'Что выберешь после ужина?',
+  homeOpts: [
+    { e: '🍷', t: 'Вино' },
+    { e: '🥂', t: 'Шампанское' },
+    { e: '💨', t: 'Кальян' },
+    { e: '💆', t: 'Я делаю тебе массаж' },
+    { e: '🎬', t: 'Смотрим киношку' },
+    { e: '📺', t: 'Сериал' }
   ],
   morningTitle: 'Утро субботы. Завтрак?',
   morningOpts: [
     { e: '☕', t: 'Кофе' },
     { e: '🤗', t: 'Обнимашки' },
     { e: '📺', t: 'Сериальчик' },
-    { e: '🎬', t: 'Киношка' }
+    { e: '🎬', t: 'Киношка' },
+    { e: '🥪', t: 'Бутерброды' },
+    { e: '🥞', t: 'Блинчики с мёдом' }
   ],
-  secret: 'Я хотел позвать тебя ещё в тот день, когда мы впервые проговорили до самого утра. Просто не решался.',
+  secret: 'Я очень рад, что встретил тебя! ❤️',
   noMode: 'runaway',
   theme: 'coral',
   font: 'geo',
@@ -87,10 +100,17 @@ function payload() {
       },
       home: {
         title: state.homeTitle,
-        sub: 'Можно несколько — соберу стол.',
+        sub: 'Можно несколько.',
         multi: true,
+        dinner: {
+          title: state.dinnerTitle,
+          sub: 'Можно несколько — соберу стол.',
+          multi: true,
+          options: state.dinnerOpts.map((o) => opt(o)),
+          own: { t: 'Твой вариант', e: '✨', placeholder: 'Что закажем?' }
+        },
         options: state.homeOpts.map((o) => opt(o)),
-        own: { t: 'Твой вариант', e: '✨', placeholder: 'Что закажем?' }
+        own: { t: 'Твой вариант', e: '✨', placeholder: 'Что бы ты хотела?' }
       }
     },
     morning: {
@@ -160,6 +180,8 @@ function fillForm() {
   $('cafeTitle').value = state.cafeTitle;
   $('cafeOpts').value = toLines(state.cafeOpts);
   $('homeTitle').value = state.homeTitle;
+  $('dinnerTitle').value = state.dinnerTitle;
+  $('dinnerOpts').value = toLines(state.dinnerOpts);
   $('homeOpts').value = toLines(state.homeOpts);
   $('morningTitle').value = state.morningTitle;
   $('morningOpts').value = toLines(state.morningOpts);
@@ -192,13 +214,15 @@ function bind() {
   const simple = {
     herName: 'herName', myName: 'myName', question: 'question', dateLabel: 'dateLabel',
     eveningTitle: 'eveningTitle', cafeTitle: 'cafeTitle', homeTitle: 'homeTitle',
+    dinnerTitle: 'dinnerTitle',
     morningTitle: 'morningTitle', noMode: 'noMode', font: 'font', email: 'formsubmitEmail'
   };
   Object.keys(simple).forEach((id) => {
     $(id).addEventListener('input', () => { state[simple[id]] = $(id).value; update(); });
   });
   const lists = {
-    eveningOpts: 'eveningOpts', cafeOpts: 'cafeOpts', homeOpts: 'homeOpts', morningOpts: 'morningOpts'
+    eveningOpts: 'eveningOpts', cafeOpts: 'cafeOpts', dinnerOpts: 'dinnerOpts',
+    homeOpts: 'homeOpts', morningOpts: 'morningOpts'
   };
   Object.keys(lists).forEach((id) => {
     $(id).addEventListener('input', () => { state[lists[id]] = parseOpts($(id).value); update(); });
