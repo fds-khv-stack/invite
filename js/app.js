@@ -350,5 +350,7 @@ function init() {
     $('bNext').disabled = !(picked.branch.length || picked.own.trim());
   });
   if (C.cats === false) { const box = $('cats'); if (box) box.remove(); }
+  const pic = $('saturdayPic');
+  if (pic) { if (C.saturdayPhoto) pic.src = C.saturdayPhoto; else pic.remove(); }
   if (C.previewSkip) first();
 }

@@ -15,6 +15,9 @@ window.CONFIG = {
   // Котики-стикеры на экране входа (img/cat-*.webp)
   cats: true,
 
+  // Картинка-сцена на шаге «утро субботы». '' — без картинки
+  saturdayPhoto: 'img/saturday.webp',
+
   // Поведение кнопки «Нет»: runaway | shrink | split | kiss
   noMode: 'runaway',
 

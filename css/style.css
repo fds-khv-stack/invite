@@ -94,6 +94,15 @@ body{
 }
 .owninput:focus{outline:none;border-color:var(--coral)}
 
+/* картинка-сцена на шаге «утро субботы» */
+.scene{
+  display:block;width:100%;height:auto;max-width:300px;margin:0 auto 14px;
+  border-radius:20px;box-shadow:0 16px 34px rgba(120,40,50,.22);
+}
+@media(max-width:400px){
+  .scene{max-width:250px;margin-bottom:12px;border-radius:16px}
+}
+
 /* финал */
 .bigemoji{font-size:52px;line-height:1;margin-bottom:8px}
 .finaltext{font-size:17px;line-height:1.55;margin:8px 0 18px;color:var(--ink)}
