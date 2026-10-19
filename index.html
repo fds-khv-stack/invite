@@ -43,29 +43,40 @@
     </div>
   </section>
 
-  <!-- 2. ДАТА И ВРЕМЯ -->
+  <!-- 2. КАК ПРОВЕДЁМ ВЕЧЕР -->
   <section class="screen" id="s2">
     <div class="card">
-      <h2 class="step">Когда тебе удобно?</h2>
-      <p class="sub">Выбери день и время — подстроюсь под тебя.</p>
-      <div class="chips" id="dateChips"></div>
-      <div class="chips times" id="timeChips"></div>
-      <button class="btn yes wide" id="dateNext" disabled>Дальше →</button>
+      <h2 class="step" id="evenTitle">Как бы ты хотела провести вечер?</h2>
+      <p class="sub" id="evenSub">Выбери — подстроюсь под тебя.</p>
+      <div class="acts" id="evenChips"></div>
     </div>
   </section>
 
-  <!-- 3. ЗАНЯТИЕ -->
+  <!-- 3. ВЕТКА: кафе или дома -->
   <section class="screen" id="s3">
     <div class="card">
-      <h2 class="step">И чем займёмся?</h2>
-      <p class="sub">Что ближе — то и будет.</p>
-      <div class="acts" id="actChips"></div>
-      <button class="btn yes wide" id="actNext" disabled>Дальше →</button>
+      <h2 class="step" id="bTitle"></h2>
+      <p class="sub" id="bSub"></p>
+      <div class="acts" id="bChips"></div>
+      <div class="ownwrap" id="ownWrap" hidden>
+        <input class="owninput" id="ownInput" type="text" maxlength="80">
+      </div>
+      <button class="btn yes wide" id="bNext" disabled>Дальше →</button>
     </div>
   </section>
 
-  <!-- 4. ФИНАЛ -->
+  <!-- 4. УТРО СУББОТЫ -->
   <section class="screen" id="s4">
+    <div class="card">
+      <h2 class="step" id="mTitle">Утро субботы. Завтрак?</h2>
+      <p class="sub" id="mSub">Можно всё сразу.</p>
+      <div class="acts" id="mChips"></div>
+      <button class="btn yes wide" id="mNext" disabled>Дальше →</button>
+    </div>
+  </section>
+
+  <!-- 5. ФИНАЛ -->
+  <section class="screen" id="s5">
     <div class="card final">
       <div class="bigemoji">🎉</div>
       <h2 class="step">Ура! Это свидание 💛</h2>

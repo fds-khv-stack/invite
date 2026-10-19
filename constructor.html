@@ -36,15 +36,30 @@
     </div>
 
     <div class="group">
-      <h2>Когда</h2>
-      <label>Дни — по одному в строке<textarea id="dates" rows="3"></textarea></label>
-      <label>Время — через запятую<input id="times" autocomplete="off"></label>
+      <h2>Вечер</h2>
+      <label>Дата (как показывать)<input id="dateLabel" autocomplete="off"></label>
+      <label>Вопрос на входе — уже с датой</label>
+      <label>Заголовок шага «как проведём вечер»<input id="eveningTitle" autocomplete="off"></label>
+      <label>Кнопки вечера — по строке, смайлик в начале<textarea id="eveningOpts" rows="2"></textarea></label>
+      <p class="hint">Порядок важен: 1-я кнопка → ветка «после кафе», 2-я → ветка «дома».</p>
     </div>
 
     <div class="group">
-      <h2>Чем займёмся</h2>
-      <label>Занятия — по одному в строке, смайлик в начале<textarea id="acts" rows="3"></textarea></label>
-      <p class="hint">Например: <code>☕ Кофе и разговор</code></p>
+      <h2>После кафе</h2>
+      <label>Заголовок<input id="cafeTitle" autocomplete="off"></label>
+      <label>Кнопки — по строке, смайлик в начале<textarea id="cafeOpts" rows="6"></textarea></label>
+    </div>
+
+    <div class="group">
+      <h2>Ужинаем дома</h2>
+      <label>Заголовок<input id="homeTitle" autocomplete="off"></label>
+      <label>Кнопки — по строке, смайлик в начале<textarea id="homeOpts" rows="4"></textarea></label>
+    </div>
+
+    <div class="group">
+      <h2>Утро субботы</h2>
+      <label>Заголовок<input id="morningTitle" autocomplete="off"></label>
+      <label>Кнопки — по строке, смайлик в начале<textarea id="morningOpts" rows="4"></textarea></label>
     </div>
 
     <div class="group">

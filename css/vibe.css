@@ -27,3 +27,5 @@ html[data-dark="1"] .btn.no { background: rgba(255, 255, 255, .12); color: #efe9
 html[data-dark="1"] .envelope { background: rgba(255, 255, 255, .1); color: #ffd9c2; border-color: rgba(255, 200, 160, .5); }
 html[data-dark="1"] .secret { color: #ffc9b0; }
 html[data-dark="1"] .intro { color: #fff6ef; }
+html[data-dark="1"] .owninput { background: rgba(255,255,255,.1); color: #f7f2ea; border-color: rgba(255,255,255,.18); }
+html[data-dark="1"] .owninput::placeholder { color: #b9b0c6; }

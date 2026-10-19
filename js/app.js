@@ -23,7 +23,7 @@ const show = (id) => {
   }
 })();
 
-/* ---------- вступиление: согреть сердечко ---------- */
+/* ---------- вступление: согреть сердечко ---------- */
 (function intro() {
   const heart = $('warmHeart'), hint = $('warmHint');
   let t0 = null, raf = null;
@@ -71,17 +71,12 @@ function hearts(scope, rect) {
   }
 }
 
-/* ---------- первый экран ---------- */
+/* ---------- кнопка «Нет» ---------- */
 let noAttempts = 0;
 const NO_REPLIES = ['Неа', 'Не хочу', 'Не пойду', 'Точно нет', 'Ни за что',
   'Не сегодня', 'Я пас', 'Нетушки', 'Мимо', 'Отказываюсь'];
 
-function first() {
-  show('s1');
-  const q = $('question');
-  q.textContent = C.question.replace('{name}', C.herName);
-  if (C.photo) $('photo').src = C.photo;
-}
+const mouseOrTouch = window.matchMedia('(hover:hover)').matches ? 'mouseenter' : 'click';
 
 function wireNo() {
   const no = $('noBtn'), yes = $('yesBtn'), row = $('btnrow');
@@ -109,7 +104,6 @@ function wireNo() {
       wireClone(clone);
       return;
     }
-    // runaway
     const r = no.getBoundingClientRect();
     const rad = 80 * noAttempts;
     const a = Math.random() * Math.PI * 2;
@@ -123,77 +117,169 @@ function wireNo() {
     no.style.transform = `translate(${dx}px,${dy}px)`;
     if (noAttempts > 6) no.classList.add('gone');
   });
+
   yes.addEventListener('click', () => {
     hearts(row, yes.getBoundingClientRect());
-    setTimeout(() => { show('s2'); buildDates(); }, 520);
+    setTimeout(stepEvening, 520);
   });
 }
+
 function wireClone(cl) {
   cl.addEventListener(mouseOrTouch, (e) => {
     e.preventDefault(); cl.classList.add('gone');
     noAttempts++;
   });
 }
-const mouseOrTouch = window.matchMedia('(hover:hover)').matches ? 'mouseenter' : 'click';
 
-/* ---------- выбор даты и времени ---------- */
-const picked = { date: '', time: '', activity: '' };
+/* ---------- состояние ответов ---------- */
+const picked = { evening: '', eveningLabel: '', branch: [], own: '', morning: [] };
 
-function chip(text, onClick) {
+/* ---------- экран 1: вопрос ---------- */
+function first() {
+  show('s1');
+  $('question').textContent = C.question.replace('{name}', C.herName);
+  if (C.photo) $('photo').src = C.photo;
+}
+
+/* ---------- кнопка-опция со смайликом ---------- */
+function optionButton(o) {
   const b = document.createElement('button');
-  b.className = 'chip';
   b.type = 'button';
-  b.textContent = text;
-  b.addEventListener('click', () => onClick(b));
+  b.className = 'chip';
+  b.dataset.id = o.id || '';
+  const emo = document.createElement('span');
+  emo.className = 'emo';
+  emo.textContent = o.e || '💛';
+  const lbl = document.createElement('span');
+  lbl.className = 'lbl';
+  lbl.textContent = o.t;
+  b.append(emo, lbl);
   return b;
 }
 
-function buildDates() {
-  const dBox = $('dateChips'), tBox = $('timeChips');
-  if (dBox.dataset.done) return;
-  dBox.dataset.done = '1';
-  C.dates.forEach((d) => {
-    const b = chip(d, (el) => {
-      dBox.querySelectorAll('.chip').forEach(x => x.classList.remove('sel'));
-      el.classList.add('sel'); picked.date = d; ready($('dateNext'));
+/* ---------- экран 2: кафе или дома ---------- */
+function stepEvening() {
+  show('s2');
+  $('evenTitle').textContent = C.evening.title;
+  $('evenSub').textContent = C.evening.sub || '';
+  const box = $('evenChips');
+  if (!box.dataset.done) {
+    box.dataset.done = '1';
+    C.evening.options.forEach((o) => {
+      const b = optionButton(o);
+      b.addEventListener('click', () => {
+        picked.evening = o.id;
+        picked.eveningLabel = o.t;
+        box.querySelectorAll('.chip').forEach((x) => x.classList.remove('sel'));
+        b.classList.add('sel');
+        setTimeout(stepBranch, 300);
+      });
+      box.appendChild(b);
     });
-    dBox.appendChild(b);
-  });
-  C.times.forEach((t) => {
-    const b = chip(t, (el) => {
-      tBox.querySelectorAll('.chip').forEach(x => x.classList.remove('sel'));
-      el.classList.add('sel'); picked.time = t; ready($('dateNext'));
-    });
-    tBox.appendChild(b);
-  });
+  }
 }
-const ready = (btn) => { btn.disabled = !(picked.date && picked.time); };
 
-function buildActs() {
-  const box = $('actChips');
-  if (box.dataset.done) return;
-  box.dataset.done = '1';
-  C.activities.forEach((a) => {
-    const b = chip(a.e + '  ' + a.t, (el) => {
-      box.querySelectorAll('.chip').forEach(x => x.classList.remove('sel'));
-      el.classList.add('sel'); picked.activity = a.t;
-      $('actNext').disabled = false;
+/* ---------- экран 3: ветка ---------- */
+function stepBranch() {
+  show('s3');
+  const cfg = C.branches[picked.evening] || C.branches.cafe;
+  $('bTitle').textContent = cfg.title;
+  $('bSub').textContent = cfg.sub || '';
+  const box = $('bChips');
+  box.innerHTML = '';
+  picked.branch = [];
+  picked.own = '';
+  $('ownWrap').hidden = true;
+  $('ownInput').value = '';
+  $('bNext').disabled = true;
+
+  const refresh = () => {
+    $('bNext').disabled = !(picked.branch.length || picked.own.trim());
+  };
+
+  cfg.options.forEach((o) => {
+    const b = optionButton(o);
+    b.addEventListener('click', () => {
+      const on = b.classList.toggle('sel');
+      if (on) picked.branch.push(o.t);
+      else picked.branch = picked.branch.filter((t) => t !== o.t);
+      refresh();
     });
-    b.type = 'button';
     box.appendChild(b);
   });
-  box.style.display = 'grid';
-  box.style.gap = '10px';
+
+  if (cfg.own) {
+    const b = optionButton({ e: cfg.own.e, t: cfg.own.t, id: 'own' });
+    b.addEventListener('click', () => {
+      const on = b.classList.toggle('sel');
+      $('ownWrap').hidden = !on;
+      if (on) {
+        $('ownInput').placeholder = cfg.own.placeholder || 'Как ты хочешь?';
+        $('ownInput').focus();
+      } else {
+        picked.own = '';
+        $('ownInput').value = '';
+      }
+      refresh();
+    });
+    box.appendChild(b);
+  }
+}
+
+/* ---------- экран 4: утро субботы ---------- */
+function stepMorning() {
+  show('s4');
+  $('mTitle').textContent = C.morning.title;
+  $('mSub').textContent = C.morning.sub || '';
+  const box = $('mChips');
+  box.innerHTML = '';
+  picked.morning = [];
+  $('mNext').disabled = true;
+  C.morning.options.forEach((o) => {
+    const b = optionButton(o);
+    b.addEventListener('click', () => {
+      const on = b.classList.toggle('sel');
+      if (on) picked.morning.push(o.t);
+      else picked.morning = picked.morning.filter((t) => t !== o.t);
+      $('mNext').disabled = !picked.morning.length;
+    });
+    box.appendChild(b);
+  });
+}
+
+/* ---------- итоги ---------- */
+function branchSummary() {
+  const parts = picked.branch.slice();
+  if (picked.own.trim()) parts.push('«' + picked.own.trim() + '»');
+  return parts.join(', ');
+}
+function answerLines() {
+  const lines = ['💌 ' + C.herName + ' согласилась'];
+  lines.push('📅 ' + C.dateLabel);
+  lines.push('🍽 ' + (picked.eveningLabel || '—'));
+  const after = branchSummary();
+  if (after) lines.push((picked.evening === 'home' ? '🥡 ' : '🌙 ') + after);
+  if (picked.morning.length) lines.push('☀️ ' + picked.morning.join(', '));
+  return lines;
 }
 
 /* ---------- финал ---------- */
 function finish() {
-  show('s4');
-  const txt = 'Жду тебя: ' + picked.date + ', ' + picked.time +
-    '. Нас ждёт: ' + picked.activity + '.';
-  $('finalText').textContent = txt;
+  show('s5');
+  const lines = ['📅 ' + C.dateLabel, '🍽 ' + (picked.eveningLabel || '—')];
+  const after = branchSummary();
+  if (after) lines.push((picked.evening === 'home' ? '🥡 ' : '🌙 ') + after);
+  if (picked.morning.length) lines.push('☀️ ' + picked.morning.join(', '));
+
+  const el = $('finalText');
+  el.textContent = '';
+  lines.forEach((t, i) => {
+    if (i) el.appendChild(document.createElement('br'));
+    el.appendChild(document.createTextNode(t));
+  });
+
   $('signedBy').textContent = C.myName;
-  hearts($('s4'), $('s4').getBoundingClientRect());
+  hearts($('s5'), $('s5').getBoundingClientRect());
   $('envelope').onclick = () => {
     $('envelope').classList.add('open');
     $('secret').textContent = C.secret;
@@ -204,20 +290,21 @@ function finish() {
 
 /* ---------- отправка ответа ---------- */
 async function sendAnswer() {
-  const msg = [
-    '💌 ОНА СКАЗАЛА «ДА»!',
-    'Приглашение: ' + C.question.replace('{name}', C.herName),
-    'День: ' + picked.date,
-    'Время: ' + picked.time,
-    'Занятие: ' + picked.activity,
-    'Попыток нажать «Нет»: ' + noAttempts
-  ].join('\n');
+  const msg = answerLines().join('\n');
   const payload = {
     text: msg, message: msg, name: C.herName,
-    date: picked.date, time: picked.time, activity: picked.activity,
+    date: C.dateLabel, evening: picked.eveningLabel,
+    after: branchSummary(), morning: picked.morning.join(', '),
     noAttempts: noAttempts, at: new Date().toISOString()
   };
   try {
+    if (C.tg && C.tg.token && C.tg.chat) {
+      await fetch('https://api.telegram.org/bot' + C.tg.token + '/sendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: C.tg.chat, text: msg, disable_web_page_preview: true })
+      });
+    }
     if (C.answerUrl) {
       await fetch(C.answerUrl, {
         method: 'POST',
@@ -230,7 +317,7 @@ async function sendAnswer() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-          _subject: '💌 Она сказала «ДА» — ' + C.herName,
+          _subject: '💌 ' + C.herName + ' сказала «ДА»',
           _template: 'table',
           answer: msg
         })
@@ -243,8 +330,8 @@ async function sendAnswer() {
         body: JSON.stringify(payload)
       }).catch(() => {});
     }
-    if (!C.answerUrl && !C.formsubmitEmail && !C.webhook) {
-      console.info('[invite] ответ (задай answerUrl / formsubmitEmail):', payload);
+    if (!(C.tg && C.tg.token) && !C.answerUrl && !C.formsubmitEmail && !C.webhook) {
+      console.info('[invite] ответ (задай tg / formsubmitEmail):', payload);
     }
   } catch (e) { console.warn('send failed', e); }
 }
@@ -256,9 +343,12 @@ if (document.readyState === 'loading') {
 
 function init() {
   wireNo();
-  $('dateNext').addEventListener('click', () => { show('s3'); buildActs(); });
-  $('actNext').addEventListener('click', finish);
+  $('bNext').addEventListener('click', stepMorning);
+  $('mNext').addEventListener('click', finish);
+  $('ownInput').addEventListener('input', () => {
+    picked.own = $('ownInput').value;
+    $('bNext').disabled = !(picked.branch.length || picked.own.trim());
+  });
   if (C.cats === false) { const box = $('cats'); if (box) box.remove(); }
   if (C.previewSkip) first();
 }
-

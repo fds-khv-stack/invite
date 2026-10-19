@@ -2,18 +2,40 @@
 /* Конструктор приглашения: форма → ссылка. Данные живут в самой ссылке (#d=base64url). */
 
 const $ = (id) => document.getElementById(id);
-const DRAFT = 'invite-draft-v1';
+const DRAFT = 'invite-draft-v2';
 
 const DEFAULT = {
   herName: 'Алёна',
   myName: 'Дмитрий',
-  question: '{name}, пойдёшь со мной на свидание?',
-  dates: ['пятница, 24 октября', 'суббота, 25 октября', 'воскресенье, 26 октября'],
-  times: ['17:00', '18:30', '20:00'],
-  activities: [
-    { t: 'Кофе и разговор', e: '☕' },
-    { t: 'Кино', e: '🎬' },
-    { t: 'Прогулка у моря', e: '🌊' }
+  question: '{name}, ты останешься у меня в эту пятницу, 23 октября?',
+  dateLabel: 'пятница, 23 октября',
+  eveningTitle: 'Как бы ты хотела провести вечер?',
+  eveningOpts: [
+    { e: '🍽', t: 'Ужинаем в кафе' },
+    { e: '🏠', t: 'Ужинаем дома' }
+  ],
+  cafeTitle: 'Что выберешь после ужина?',
+  cafeOpts: [
+    { e: '🍷', t: 'Вино' },
+    { e: '🥂', t: 'Шампанское' },
+    { e: '💨', t: 'Кальян' },
+    { e: '💆', t: 'Я делаю тебе массаж' },
+    { e: '🎬', t: 'Смотрим киношку' },
+    { e: '📺', t: 'Сериал' }
+  ],
+  homeTitle: 'Какие пожелания на ужин?',
+  homeOpts: [
+    { e: '🍕', t: 'Пицца' },
+    { e: '🍣', t: 'Роллы' },
+    { e: '🥗', t: 'Салаты' },
+    { e: '🧀', t: 'Лёгкая закуска' }
+  ],
+  morningTitle: 'Утро субботы. Завтрак?',
+  morningOpts: [
+    { e: '☕', t: 'Кофе' },
+    { e: '🤗', t: 'Обнимашки' },
+    { e: '📺', t: 'Сериальчик' },
+    { e: '🎬', t: 'Киношка' }
   ],
   secret: 'Я хотел позвать тебя ещё в тот день, когда мы впервые проговорили до самого утра. Просто не решался.',
   noMode: 'runaway',
@@ -40,20 +62,43 @@ function b64url(json) {
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 function payload() {
+  const opt = (o, id) => ({ id: id || o.id || '', t: o.t, e: o.e || '💛' });
+  const eve = state.eveningOpts.slice(0, 2).map((o, i) => opt(o, i === 0 ? 'cafe' : 'home'));
   return {
-    v: 1,
+    v: 2,
     herName: state.herName,
     myName: state.myName,
     question: state.question,
-    secret: state.secret,
+    dateLabel: state.dateLabel,
     noMode: state.noMode,
-    dates: state.dates,
-    times: state.times,
-    activities: state.activities,
+    secret: state.secret,
     theme: state.theme,
     font: state.font,
     cats: state.cats,
-    formsubmitEmail: state.formsubmitEmail
+    formsubmitEmail: state.formsubmitEmail,
+    evening: { title: state.eveningTitle, sub: 'Выбери — подстроюсь под тебя.', options: eve },
+    branches: {
+      cafe: {
+        title: state.cafeTitle,
+        sub: 'Можно несколько.',
+        multi: true,
+        options: state.cafeOpts.map((o) => opt(o)),
+        own: { t: 'Твой вариант', e: '✨', placeholder: 'Что бы ты хотела?' }
+      },
+      home: {
+        title: state.homeTitle,
+        sub: 'Можно несколько — соберу стол.',
+        multi: true,
+        options: state.homeOpts.map((o) => opt(o)),
+        own: { t: 'Твой вариант', e: '✨', placeholder: 'Что закажем?' }
+      }
+    },
+    morning: {
+      title: state.morningTitle,
+      sub: 'Можно всё сразу.',
+      multi: true,
+      options: state.morningOpts.map((o) => opt(o))
+    }
   };
 }
 function baseDir() {
@@ -96,19 +141,28 @@ function applyPageVibe() {
 function splitLines(text) {
   return text.split('\n').map((s) => s.trim()).filter(Boolean);
 }
-function parseActs(text) {
+function parseOpts(text) {
   return splitLines(text).map((line) => {
     const m = line.match(/^([^\p{L}\p{N}]+)\s*(.+)$/u);
     return m ? { e: m[1].trim(), t: m[2].trim() } : { e: '💛', t: line };
   });
 }
+function toLines(opts) {
+  return (opts || []).map((o) => (o.e ? o.e + ' ' : '') + o.t).join('\n');
+}
 function fillForm() {
   $('herName').value = state.herName;
   $('myName').value = state.myName;
   $('question').value = state.question;
-  $('dates').value = state.dates.join('\n');
-  $('times').value = state.times.join(', ');
-  $('acts').value = state.activities.map((a) => (a.e ? a.e + ' ' : '') + a.t).join('\n');
+  $('dateLabel').value = state.dateLabel;
+  $('eveningTitle').value = state.eveningTitle;
+  $('eveningOpts').value = toLines(state.eveningOpts);
+  $('cafeTitle').value = state.cafeTitle;
+  $('cafeOpts').value = toLines(state.cafeOpts);
+  $('homeTitle').value = state.homeTitle;
+  $('homeOpts').value = toLines(state.homeOpts);
+  $('morningTitle').value = state.morningTitle;
+  $('morningOpts').value = toLines(state.morningOpts);
   $('secret').value = state.secret;
   $('noMode').value = state.noMode;
   $('font').value = state.font;
@@ -128,27 +182,27 @@ function render() {
   $('preview').src = previewLink();
   const link = buildLink(false);
   $('linkOut').value = link;
-  const long = link.length > 1900;
   $('lenHint').textContent = 'Длина ссылки: ' + link.length + ' символов' +
-    (long ? ' — длинновато, часть мессенджеров может обрезать. Сократим, когда поднимем хранилище на VPS.' : '');
+    (link.length > 1900 ? ' — длинновато, часть мессенджеров может обрезать.' : '');
   saveDraft();
 }
 
 /* ---------- поля ---------- */
 function bind() {
   const simple = {
-    herName: 'herName', myName: 'myName', question: 'question',
-    noMode: 'noMode', font: 'font', email: 'formsubmitEmail'
+    herName: 'herName', myName: 'myName', question: 'question', dateLabel: 'dateLabel',
+    eveningTitle: 'eveningTitle', cafeTitle: 'cafeTitle', homeTitle: 'homeTitle',
+    morningTitle: 'morningTitle', noMode: 'noMode', font: 'font', email: 'formsubmitEmail'
   };
   Object.keys(simple).forEach((id) => {
     $(id).addEventListener('input', () => { state[simple[id]] = $(id).value; update(); });
   });
-  $('dates').addEventListener('input', () => { state.dates = splitLines($('dates').value); update(); });
-  $('times').addEventListener('input', () => {
-    state.times = $('times').value.split(',').map((s) => s.trim()).filter(Boolean);
-    update();
+  const lists = {
+    eveningOpts: 'eveningOpts', cafeOpts: 'cafeOpts', homeOpts: 'homeOpts', morningOpts: 'morningOpts'
+  };
+  Object.keys(lists).forEach((id) => {
+    $(id).addEventListener('input', () => { state[lists[id]] = parseOpts($(id).value); update(); });
   });
-  $('acts').addEventListener('input', () => { state.activities = parseActs($('acts').value); update(); });
   $('secret').addEventListener('input', () => { state.secret = $('secret').value; update(); });
   $('cats').addEventListener('change', () => { state.cats = $('cats').checked; update(); });
 
