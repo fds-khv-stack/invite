@@ -23,32 +23,36 @@ const show = (id) => {
   }
 })();
 
-/* ---------- вступление: согреть сердечко ---------- */
+/* ---------- вступление: три нажатия на сердечко ---------- */
 (function intro() {
   const heart = $('warmHeart'), hint = $('warmHint');
-  let t0 = null, raf = null;
-  const HOLD = 2600;
-  const start = (e) => {
-    e.preventDefault(); t0 = Date.now(); heart.classList.add('warm');
-    hint.textContent = 'ещё чуть-чуть…';
-    const tick = () => {
-      if (!t0) return;
-      if (Date.now() - t0 >= HOLD) { done(); return; }
-      raf = requestAnimationFrame(tick);
-    };
-    tick();
+  const dots = [...$('heartDots').children];
+  const TH = 3;
+  let taps = 0;
+
+  const paint = () => {
+    dots.forEach((d, i) => d.classList.toggle('on', i < taps));
+    hint.textContent = taps === 0 ? 'Нажми три раза на сердечко'
+      : taps === 1 ? 'Ещё два раза…' : 'Ещё один раз…';
   };
-  const stop = () => {
-    if (!t0) return;
-    t0 = null; cancelAnimationFrame(raf); heart.classList.remove('warm');
-    hint.textContent = 'Зажми сердечко и держи 3 секунды';
-  };
-  const done = () => { stop(); hearts($('s0'), heart.getBoundingClientRect()); setTimeout(first, 240); };
-  heart.addEventListener('pointerdown', start);
-  heart.addEventListener('pointerup', stop);
-  heart.addEventListener('pointerleave', stop);
-  heart.addEventListener('pointercancel', stop);
-  $('skipIntro').addEventListener('click', first);
+
+  heart.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (taps >= TH) return;
+    taps++;
+    heart.classList.remove('bump');
+    void heart.offsetWidth;
+    heart.classList.add('bump');
+    if (navigator.vibrate) navigator.vibrate(12);
+    paint();
+    if (taps >= TH) {
+      heart.classList.add('done');
+      hearts($('s0'), heart.getBoundingClientRect());
+      setTimeout(first, 320);
+    }
+  });
+
+  paint();
 })();
 
 /* ---------- сердечки разлетаются ---------- */
@@ -373,7 +377,12 @@ function finish() {
   $('signedBy').textContent = C.myName;
   hearts($('s5'), $('s5').getBoundingClientRect());
   const vid = $('finalVideo');
-  if (vid && vid.play) vid.play().catch(() => {});
+  if (vid && typeof vid.play === 'function') {
+    try {
+      const p = vid.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch (e) { /* плеер может отказать — не ломаем финал */ }
+  }
   $('envelope').onclick = () => {
     $('envelope').classList.add('open');
     $('secret').textContent = C.secret;
