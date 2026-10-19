@@ -19,6 +19,7 @@ const DEFAULT = {
   noMode: 'runaway',
   theme: 'coral',
   font: 'geo',
+  cats: true,
   formsubmitEmail: 'frolovds.khv@gmail.com'
 };
 
@@ -51,6 +52,7 @@ function payload() {
     activities: state.activities,
     theme: state.theme,
     font: state.font,
+    cats: state.cats,
     formsubmitEmail: state.formsubmitEmail
   };
 }
@@ -110,6 +112,7 @@ function fillForm() {
   $('secret').value = state.secret;
   $('noMode').value = state.noMode;
   $('font').value = state.font;
+  $('cats').checked = state.cats !== false;
   $('email').value = state.formsubmitEmail;
   renderThemes();
   applyPageVibe();
@@ -147,6 +150,7 @@ function bind() {
   });
   $('acts').addEventListener('input', () => { state.activities = parseActs($('acts').value); update(); });
   $('secret').addEventListener('input', () => { state.secret = $('secret').value; update(); });
+  $('cats').addEventListener('change', () => { state.cats = $('cats').checked; update(); });
 
   $('copyBtn').addEventListener('click', copyLink);
   $('openBtn').addEventListener('click', () => window.open(buildLink(false), '_blank'));

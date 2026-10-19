@@ -258,6 +258,7 @@ function init() {
   wireNo();
   $('dateNext').addEventListener('click', () => { show('s3'); buildActs(); });
   $('actNext').addEventListener('click', finish);
+  if (C.cats === false) { const box = $('cats'); if (box) box.remove(); }
   if (C.previewSkip) first();
 }
 

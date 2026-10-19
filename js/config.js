@@ -11,6 +11,9 @@ window.CONFIG = {
   // Фото/гифка на первом экране. '' — без картинки
   photo: '',
 
+  // Котики-стикеры на экране входа (img/cat-*.webp)
+  cats: true,
+
   // Поведение кнопки «Нет»: runaway | shrink | split | kiss
   noMode: 'runaway',
 
