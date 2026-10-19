@@ -132,7 +132,7 @@ function wireClone(cl) {
 }
 
 /* ---------- состояние ответов ---------- */
-const picked = { evening: '', eveningLabel: '', branch: [], own: '', morning: [] };
+const picked = { evening: '', eveningLabel: '', branch: [], own: '', morning: [], morningOwn: '' };
 
 /* ---------- экран 1: вопрос ---------- */
 function first() {
@@ -234,17 +234,42 @@ function stepMorning() {
   const box = $('mChips');
   box.innerHTML = '';
   picked.morning = [];
+  picked.morningOwn = '';
+  $('mOwnWrap').hidden = true;
+  $('mOwnInput').value = '';
   $('mNext').disabled = true;
+
+  const refresh = () => {
+    $('mNext').disabled = !(picked.morning.length || picked.morningOwn.trim());
+  };
+
   C.morning.options.forEach((o) => {
     const b = optionButton(o);
     b.addEventListener('click', () => {
       const on = b.classList.toggle('sel');
       if (on) picked.morning.push(o.t);
       else picked.morning = picked.morning.filter((t) => t !== o.t);
-      $('mNext').disabled = !picked.morning.length;
+      refresh();
     });
     box.appendChild(b);
   });
+
+  if (C.morning.own) {
+    const b = optionButton({ e: C.morning.own.e, t: C.morning.own.t, id: 'mown' });
+    b.addEventListener('click', () => {
+      const on = b.classList.toggle('sel');
+      $('mOwnWrap').hidden = !on;
+      if (on) {
+        $('mOwnInput').placeholder = C.morning.own.placeholder || 'Как ты хочешь?';
+        $('mOwnInput').focus();
+      } else {
+        picked.morningOwn = '';
+        $('mOwnInput').value = '';
+      }
+      refresh();
+    });
+    box.appendChild(b);
+  }
 }
 
 /* ---------- итоги ---------- */
@@ -253,13 +278,19 @@ function branchSummary() {
   if (picked.own.trim()) parts.push('«' + picked.own.trim() + '»');
   return parts.join(', ');
 }
+function morningSummary() {
+  const parts = picked.morning.slice();
+  if (picked.morningOwn.trim()) parts.push('«' + picked.morningOwn.trim() + '»');
+  return parts.join(', ');
+}
 function answerLines() {
   const lines = ['💌 ' + C.herName + ' согласилась'];
   lines.push('📅 ' + C.dateLabel);
   lines.push('🍽 ' + (picked.eveningLabel || '—'));
   const after = branchSummary();
   if (after) lines.push((picked.evening === 'home' ? '🥡 ' : '🌙 ') + after);
-  if (picked.morning.length) lines.push('☀️ ' + picked.morning.join(', '));
+  const morn = morningSummary();
+  if (morn) lines.push('☀️ ' + morn);
   return lines;
 }
 
@@ -269,7 +300,8 @@ function finish() {
   const lines = ['📅 ' + C.dateLabel, '🍽 ' + (picked.eveningLabel || '—')];
   const after = branchSummary();
   if (after) lines.push((picked.evening === 'home' ? '🥡 ' : '🌙 ') + after);
-  if (picked.morning.length) lines.push('☀️ ' + picked.morning.join(', '));
+  const morn = morningSummary();
+  if (morn) lines.push('☀️ ' + morn);
 
   const el = $('finalText');
   el.textContent = '';
@@ -280,6 +312,8 @@ function finish() {
 
   $('signedBy').textContent = C.myName;
   hearts($('s5'), $('s5').getBoundingClientRect());
+  const vid = $('finalVideo');
+  if (vid && vid.play) vid.play().catch(() => {});
   $('envelope').onclick = () => {
     $('envelope').classList.add('open');
     $('secret').textContent = C.secret;
@@ -336,6 +370,58 @@ async function sendAnswer() {
   } catch (e) { console.warn('send failed', e); }
 }
 
+/* ---------- код доступа ---------- */
+function initPin() {
+  const pin = String(C.pin || '').trim();
+  const unlocked = sessionStorage.getItem('invite-unlocked') === '1';
+  if (!pin || unlocked || C.previewSkip) {
+    $('sPin').classList.remove('on');
+    $('s0').classList.add('on');
+    return;
+  }
+
+  $('s0').classList.remove('on');
+  $('sPin').classList.add('on');
+
+  let entered = '';
+  const dots = [...$('pinDots').children];
+  const paint = () => dots.forEach((d, i) => d.classList.toggle('fill', i < entered.length));
+  const shake = () => {
+    $('pinDots').classList.add('shake');
+    setTimeout(() => $('pinDots').classList.remove('shake'), 500);
+  };
+
+  $('keypad').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    const k = b.dataset.k;
+    if (k === 'del') entered = entered.slice(0, -1);
+    else if (entered.length < 4) entered += k;
+    paint();
+
+    if (entered.length === 4) {
+      if (entered === pin) {
+        sessionStorage.setItem('invite-unlocked', '1');
+        $('pinHint').textContent = 'Открываю…';
+        setTimeout(() => {
+          $('sPin').classList.remove('on');
+          $('s0').classList.add('on');
+          $('pinHint').textContent = '';
+          hearts($('s0'), $('s0').getBoundingClientRect());
+        }, 320);
+      } else {
+        $('pinHint').textContent = 'Не тот код 🙂';
+        shake();
+        setTimeout(() => {
+          entered = '';
+          paint();
+          $('pinHint').textContent = '';
+        }, 600);
+      }
+    }
+  });
+}
+
 /* ---------- старт ---------- */
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
@@ -349,8 +435,22 @@ function init() {
     picked.own = $('ownInput').value;
     $('bNext').disabled = !(picked.branch.length || picked.own.trim());
   });
+  $('mOwnInput').addEventListener('input', () => {
+    picked.morningOwn = $('mOwnInput').value;
+    $('mNext').disabled = !(picked.morning.length || picked.morningOwn.trim());
+  });
   if (C.cats === false) { const box = $('cats'); if (box) box.remove(); }
   const pic = $('saturdayPic');
   if (pic) { if (C.saturdayPhoto) pic.src = C.saturdayPhoto; else pic.remove(); }
+  const pic2 = $('saturdayPic2');
+  if (pic2) { if (C.saturdayPhoto2) pic2.src = C.saturdayPhoto2; else pic2.remove(); }
+  const vid = $('finalVideo');
+  if (vid) {
+    if (C.video) {
+      vid.src = C.video;
+      if (C.videoPoster) vid.poster = C.videoPoster;
+    } else vid.remove();
+  }
+  initPin();
   if (C.previewSkip) first();
 }

@@ -17,8 +17,32 @@
 
 <main class="stage">
 
-  <!-- 0. ВСТУПЛЕНИЕ -->
-  <section class="screen on" id="s0">
+  <!-- 0. КОД ДОСТУПА -->
+  <section class="screen on" id="sPin">
+    <div class="intro pinwrap">
+      <div class="pinlock">🔒</div>
+      <p class="lead">Это личное приглашение.<br>Введи код из четырёх цифр.</p>
+      <div class="pindots" id="pinDots"><i></i><i></i><i></i><i></i></div>
+      <div class="keypad" id="keypad">
+        <button type="button" data-k="1">1</button>
+        <button type="button" data-k="2">2</button>
+        <button type="button" data-k="3">3</button>
+        <button type="button" data-k="4">4</button>
+        <button type="button" data-k="5">5</button>
+        <button type="button" data-k="6">6</button>
+        <button type="button" data-k="7">7</button>
+        <button type="button" data-k="8">8</button>
+        <button type="button" data-k="9">9</button>
+        <span class="keyspace"></span>
+        <button type="button" data-k="0">0</button>
+        <button type="button" data-k="del" aria-label="Стереть">⌫</button>
+      </div>
+      <p class="hint" id="pinHint"></p>
+    </div>
+  </section>
+
+  <!-- ВСТУПЛЕНИЕ -->
+  <section class="screen" id="s0">
     <div class="intro">
       <p class="lead">Тут кое-что для тебя.<br>Только не спеши — сначала согрей.</p>
       <button class="heart" id="warmHeart" aria-label="Согреть сердечко">❤</button>
@@ -68,10 +92,16 @@
   <!-- 4. УТРО СУББОТЫ -->
   <section class="screen" id="s4">
     <div class="card">
-      <img class="scene" id="saturdayPic" src="img/saturday.webp" alt="Утро субботы" width="585" height="544">
+      <div class="scene-row">
+        <img class="scene" id="saturdayPic" src="img/saturday.webp" alt="Утро субботы" width="585" height="544">
+        <img class="scene" id="saturdayPic2" src="img/saturday2.webp" alt="" width="720" height="720">
+      </div>
       <h2 class="step" id="mTitle">Утро субботы. Завтрак?</h2>
       <p class="sub" id="mSub">Можно всё сразу.</p>
       <div class="acts" id="mChips"></div>
+      <div class="ownwrap" id="mOwnWrap" hidden>
+        <input class="owninput" id="mOwnInput" type="text" maxlength="80">
+      </div>
       <button class="btn yes wide" id="mNext" disabled>Дальше →</button>
     </div>
   </section>
@@ -81,6 +111,8 @@
     <div class="card final">
       <div class="bigemoji">🎉</div>
       <h2 class="step">Ура! Это свидание 💛</h2>
+      <video class="final-video" id="finalVideo" src="video/ura.mp4" poster="video/ura-poster.jpg"
+             width="576" height="1024" autoplay muted loop playsinline preload="metadata"></video>
       <p class="finaltext" id="finalText"></p>
       <button class="envelope" id="envelope">
         <span class="envicon">💌</span>
