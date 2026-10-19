@@ -8,7 +8,7 @@ html,body{margin:0;height:100%}
 body{
   font-family:Manrope,system-ui,-apple-system,sans-serif;color:var(--ink);
   background:var(--grad);background-attachment:fixed;overflow-x:hidden;
-  display:flex;align-items:center;justify-content:center;min-height:100dvh;
+  display:flex;align-items:flex-start;justify-content:center;min-height:100dvh;
   padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
   -webkit-text-size-adjust:100%;
 }
@@ -21,7 +21,9 @@ body{
   10%{opacity:.9}
   100%{transform:translateY(115vh) rotate(360deg);opacity:0}
 }
-.stage{position:relative;z-index:1;width:100%;max-width:560px;padding:22px 16px 30px}
+/* margin:auto центрирует по вертикали, когда контент влезает, и прижимает к верху,
+   когда он длиннее экрана (иначе верх обрезался на телефоне) */
+.stage{position:relative;z-index:1;width:100%;max-width:560px;margin:auto;padding:22px 16px 30px}
 .screen{display:none;animation:softIn .62s cubic-bezier(.22,.8,.3,1) both}
 .screen.on{display:block}
 @keyframes softIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
@@ -217,8 +219,7 @@ body{
 
 /* ---------- мобильная адаптация (телефон — главный экран) ---------- */
 @media(max-width:600px){
-  /* контент на телефоне длиннее экрана: прижимаем к верху, иначе верх обрезается */
-  body{align-items:flex-start}
+  /* stage центрируется сам (margin:auto); здесь только отступы и компактность */
   .stage{padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(22px + env(safe-area-inset-bottom,0px))}
   .card{padding:20px 15px;border-radius:24px}
   /* кнопки-опции компактнее — больше помещается без прокрутки */
@@ -235,8 +236,8 @@ body{
   .lead{font-size:16px;margin-bottom:22px}
   .heartdots{margin:16px 0 0}
   .hint{margin:14px 0 8px;font-size:13.5px}
-  .q{font-size:23px;line-height:1.25}
-  .step{font-size:20px}
+  .q{font-size:23px;line-height:1.22}
+  .step{font-size:20px;line-height:1.22}
   .btn.yes.wide{margin-top:16px;padding:14px 20px}
   .final-video{max-width:190px}
 }
