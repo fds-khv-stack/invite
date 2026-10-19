@@ -1,0 +1,9 @@
+answers.jsonl
+cf.log
+cf2.log
+*.log
+.DS_Store
+
+# личное: токены и локальные настройки сервера
+.env
+secrets.*
