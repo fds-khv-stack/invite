@@ -5,7 +5,7 @@ const $ = (id) => document.getElementById(id);
 const DRAFT = 'invite-draft-v1';
 
 const DEFAULT = {
-  herName: 'Аня',
+  herName: 'Алёна',
   myName: 'Дмитрий',
   question: '{name}, пойдёшь со мной на свидание?',
   dates: ['пятница, 24 октября', 'суббота, 25 октября', 'воскресенье, 26 октября'],
